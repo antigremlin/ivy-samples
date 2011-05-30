@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="simple" default="package" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <import file="../scripts/common.xml"/>
+
+    <property file="module.properties"/>
+    <fail unless="target.release"/>
+    <property name="revision.dev.pattern" value="${target.release}-dev"/>
+
+    <property name="src.dir" location="src/main/java"/>
+    <property name="classes.dir" location="build/classes"/>
+
+    <target name="init">
+        <property name="buildnumber.resolver" value="org"/>
+        <property name="publish.resolver" value="local"/>
+        <ivy:settings file="${scripts.dir}/ivy-dev.xml"/>
+    </target>
+    
+    <target name="ciprep">
+        <property name="buildnumber.resolver" value="shared"/>
+        <property name="publish.resolver" value="shared"/>
+        <ivy:settings file="${scripts.dir}/ivy-hudson.xml"/>
+    </target>
+
+    <target name="resolve" depends="init">
+        <!--<setproxy proxyhost="stickyproxy.de.db.com" proxyport="8080"/>-->
+        <ivy:resolve conf="*(public)" showprogress="false"/>
+        <ivy:buildnumber organisation="${ivy.organisation}" module="${ivy.module}"
+                         revision="${revision.dev.pattern}" revsep="" defaultBuildNumber="1" resolver="${buildnumber.resolver}"/>
+    </target>
+
+    <target name="retrieve" depends="resolve">
+        <ivy:retrieve pattern="${ivy.lib.dir}/[conf]/[artifact]-[revision].[ext]"
+                ivypattern="${ivy.lib.dir}/[module].[ext]"
+                sync="true" type="jar" symlink="true"/>
+        <path id="build.classpath">
+            <fileset file="${ivy.lib.dir}/default/*.jar"/>
+        </path>
+    </target>
+
+    <target name="build" depends="retrieve">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}">
+            <classpath refid="build.classpath"/>
+        </javac>
+    </target>
+
+    <target name="package" depends="build">
+        <jar basedir="${classes.dir}"
+             destfile="${ivy.distrib.dir}/jars/${ivy.module}-${ivy.new.revision}.jar">
+        </jar>
+    </target>
+
+    <target name="publish" depends="package">
+        <ivy:publish resolver="${publish.resolver}" pubrevision="${ivy.new.revision}" >
+        </ivy:publish>
+    </target>
+
+    <target name="cipackage" depends="ciprep, package"/>
+    <target name="cipublish" depends="ciprep, publish"/>
+
+</project>

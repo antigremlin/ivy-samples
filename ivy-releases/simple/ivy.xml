@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:noNamespaceSchemaLocation="http://incubator.apache.org/ivy/schemas/ivy.xsd"
+            version="2.0">
+  <info organisation="spike" module="simple" status="integration"/>
+
+  <configurations>
+    <conf name="master"/>
+    <conf name="default" extends="master"/>
+  </configurations>
+
+  <publications>
+    <artifact name="simple" type="jar" ext="jar" conf="master"/>
+  </publications>
+
+  <dependencies>
+    <dependency org="commons-lang" name="commons-lang" rev="2.6" conf="default"/>
+  </dependencies>
+
+</ivy-module>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="common" default="clean" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <dirname property="scripts.dir" file="${ant.file.common}"/>
+
+  <property file="${scripts.dir}/local.properties"/>
+  <property name="ivy.default.ivy.user.dir" location="../.ivy"/>
+
+  <target name="clean">
+    <delete dir="build"/>
+  </target>
+
+  <target name="distclean" depends="clean">
+    <delete dir="distrib"/>
+    <delete dir="lib"/>
+  </target>
+
+  <target name="allclean" depends="distclean">
+    <ivy:cleancache/>
+  </target>
+
+
+</project>

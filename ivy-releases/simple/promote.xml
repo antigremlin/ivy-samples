@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="simple-promote" default="promote" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <import file="../scripts/common.xml"/>
+
+  <property file="module.properties"/>
+  <fail unless="target.release"/>
+  <property name="revision.dev.pattern" value="${target.release}-dev"/>
+  <property name="revision.mile.pattern" value="${target.release}-rc"/>
+
+  <target name="input-buildnumber" unless="buildnumber">
+    <input addproperty="buildnumber" message="Enter the build number to promote =>"/>
+  </target>
+
+  <target name="init" depends="input-buildnumber">
+    <property name="buildnumber.resolver" value="shared"/>
+    <property name="publish.resolver" value="shared"/>
+    <property name="promotable.revision" value="${revision.dev.pattern}${buildnumber}"/>
+    <ivy:settings file="${scripts.dir}/ivy-hudson.xml"/>
+  </target>
+
+
+  <target name="resolve" depends="init">
+    <ivy:info/>
+    <ivy:buildnumber organisation="${ivy.organisation}" module="${ivy.module}"
+                     revision="${revision.mile.pattern}" revsep="" defaultBuildNumber="1"
+                     resolver="shared"/>
+    <ivy:resolve conf="*(public)" revision="${promotable.revision}"
+                 organisation="${ivy.organisation}" module="${ivy.module}"
+                 inline="true" keep="true"/>
+    <echo>${ivy.revision} :: ${ivy.new.revision}</echo>
+  </target>
+
+  <target name="retrieve" depends="resolve">
+    <ivy:retrieve pattern="distrib/[type]s/[artifact].[ext]"
+                  ivypattern="distrib/[type]s/[artifact]-[revision].[ext]"
+                  sync="true" conf="master" symlink="true"/>
+  </target>
+
+  <target name="promote" depends="retrieve">
+    <ivy:resolve file="distrib/ivys/ivy-${promotable.revision}.xml"/>
+    <ivy:publish resolver="shared" revision="${promotable.revision}"
+                 pubrevision="${ivy.new.revision}" status="milestone"
+                 artifactspattern="distrib/[type]s/[artifact].[ext]">
+    </ivy:publish>
+  </target>
+</project>
