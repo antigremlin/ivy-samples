@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+  <info organisation="spike" module="backend-server"/>
+
+  <publications>
+    <artifact name="backend-server" type="jar" ext="jar"/>
+  </publications>
+
+  <dependencies>
+    <dependency org="spike" name="backend-api" rev="latest.integration"/>
+    <dependency org="spike" name="utils" rev="latest.integration"/>
+  </dependencies>
+
+</ivy-module>

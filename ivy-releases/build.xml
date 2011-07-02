@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="top" default="publish" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <fileset id="build.set" dir="${basedir}">
+    <include name="frontend/build.xml"/>
+    <include name="backend/build.xml"/>
+    <include name="utils/build.xml"/>
+  </fileset>
+
+  <target name="publish">
+    <echo>Publishing ${ant.project.name}</echo>
+    <ivy:buildlist reference="build.path">
+      <fileset refid="build.set"/>
+    </ivy:buildlist>
+    <subant target="publish" buildpathref="build.path"/>
+  </target>
+
+</project>

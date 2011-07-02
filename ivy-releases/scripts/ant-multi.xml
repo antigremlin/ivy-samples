@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ant-multi" default="publish" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <dirname property="scripts.dir" file="${ant.file.ant-multi}"/>
+  <import file="${scripts.dir}/common.xml"/>
+
+  <property file="${basedir}/module.properties"/>
+  <fail unless="target.release"/>
+  <property name="revision.dev.pattern" value="${target.release}-dev"/>
+
+  <target name="init">
+    <property name="buildnumber.resolver" value="org"/>
+    <property name="publish.resolver" value="local"/>
+    <ivy:settings file="${scripts.dir}/ivy-dev.xml"/>
+  </target>
+
+  <fileset id="build.set" dir="${basedir}">
+    <include name="*/build.xml"/>
+  </fileset>
+
+  <target name="subants">
+    <ivy:buildlist reference="build.path">
+      <fileset refid="build.set"/>
+    </ivy:buildlist>
+    <subant target="distclean" buildpathref="build.path"/>
+    <subant target="publish" buildpathref="build.path"/>
+  </target>
+
+  <target name="prepare" depends="init, subants">
+    <mkdir dir="build"/>
+    <ivy:resolve conf="*(public)" showprogress="false"/>
+    <ivy:buildnumber organisation="${ivy.organisation}" module="${ivy.module}"
+                     revision="${revision.dev.pattern}" revsep="" defaultBuildNumber="1"
+                     resolver="${buildnumber.resolver}"/>
+    <ivy:retrieve pattern="build/lib/[artifact]-[revision].[ext]"
+                  sync="true" type="jar" symlink="true" conf="default"/>
+    <touch file="build/bin/start.sh" mkdirs="true"/>
+  </target>
+
+  <target name="package" depends="prepare">
+    <zip basedir="build" file="${ivy.distrib.dir}/zips/${ant.project.name}.zip">
+      <fileset dir="build">
+        <include name="*"/>
+      </fileset>
+    </zip>
+  </target>
+
+  <target name="publish" depends="package">
+    <ivy:publish resolver="${publish.resolver}" pubrevision="${ivy.new.revision}">
+      <ivy:artifacts pattern="${ivy.distrib.dir}/zips/[artifact].[ext]"/>
+    </ivy:publish>
+  </target>
+
+</project>

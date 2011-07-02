@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="backend-api" default="publish">
+
+  <import file="../../scripts/ant-module.xml"/>
+
+</project>

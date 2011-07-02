@@ -4,7 +4,7 @@
   <dirname property="scripts.dir" file="${ant.file.common}"/>
 
   <property file="${scripts.dir}/local.properties"/>
-  <property name="ivy.default.ivy.user.dir" location="../.ivy"/>
+  <property name="ivy.default.ivy.user.dir" location="${scripts.dir}/../.ivy"/>
 
   <target name="clean">
     <delete dir="build"/>
@@ -15,9 +15,14 @@
     <delete dir="lib"/>
   </target>
 
-  <target name="allclean" depends="distclean">
+  <target name="cleancache">
     <ivy:cleancache/>
   </target>
 
+  <target name="cleanlocal">
+    <delete dir="${ivy.local.default.root}"/>
+  </target>
+
+  <target name="allclean" depends="distclean, cleancache, cleanlocal"/>
 
 </project>
