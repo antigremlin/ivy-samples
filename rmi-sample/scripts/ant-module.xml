@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ant-module" default="package" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <dirname property="scripts.dir" file="${ant.file.ant-module}"/>
+  <import file="${scripts.dir}/common.xml"/>
+
+  <property file="${basedir}/module.properties"/>
+  <fail unless="target.release"/>
+  <property name="revision.dev.pattern" value="${target.release}-dev"/>
+
+  <property name="src.dir" location="src/main/java"/>
+  <property name="classes.dir" location="build/classes"/>
+
+  <target name="init">
+    <property name="buildnumber.resolver" value="org"/>
+    <property name="publish.resolver" value="local"/>
+    <ivy:settings file="${scripts.dir}/ivy-dev.xml"/>
+  </target>
+
+  <target name="resolve" depends="init">
+    <ivy:resolve conf="*(public)" showprogress="false"/>
+    <ivy:buildnumber organisation="${ivy.organisation}" module="${ivy.module}"
+                     revision="${revision.dev.pattern}" revsep="" defaultBuildNumber="1"
+                     resolver="${buildnumber.resolver}"/>
+  </target>
+
+  <target name="retrieve" depends="resolve">
+    <ivy:retrieve pattern="${ivy.lib.dir}/[conf]/[artifact].[ext]"
+                  ivypattern="${ivy.lib.dir}/[module].[ext]"
+                  sync="true" type="jar" symlink="true"/>
+    <path id="build.classpath">
+      <fileset file="${ivy.lib.dir}/default/*.jar" erroronmissingdir="false"/>
+    </path>
+  </target>
+
+  <target name="build" depends="retrieve">
+    <mkdir dir="${classes.dir}"/>
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" includeantruntime="false" updatedProperty="javac.updated">
+      <classpath refid="build.classpath"/>
+    </javac>
+  </target>
+
+  <target name="package" depends="build">
+    <jar basedir="${classes.dir}" destfile="${ivy.distrib.dir}/jars/${ivy.module}.jar">
+    </jar>
+  </target>
+
+  <target name="publish" depends="package" if="javac.updated">
+    <ivy:publish resolver="${publish.resolver}" pubrevision="${ivy.new.revision}" forcedeliver="true">
+      <ivy:artifacts pattern="${ivy.distrib.dir}/jars/[artifact].[ext]"/>
+    </ivy:publish>
+  </target>
+
+</project>

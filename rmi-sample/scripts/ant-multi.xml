@@ -28,7 +28,6 @@
 
   <target name="prepare" depends="init, subants">
     <mkdir dir="build"/>
-
     <ivy:resolve conf="*(public)" showprogress="false"/>
     <ivy:buildnumber organisation="${ivy.organisation}" module="${ivy.module}"
                      revision="${revision.dev.pattern}" revsep="" defaultBuildNumber="1"

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="client-app" default="package">
+
+  <import file="../scripts/ant-multi.xml"/>
+
+</project>
